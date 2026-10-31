@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Guess What?</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;font-family:Arial, sans-serif;color:#342b45;background:linear-gradient(135deg,#fff5f8,#f1edff)}
+main{width:min(100%,460px);text-align:center}.tag{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#92739d;font-weight:700}
+h1{font-size:clamp(30px,8vw,42px);margin:12px 0}.intro{color:#756781;line-height:1.5;margin:0 auto 24px;max-width:330px}
+.card{position:relative;padding:16px;background:#fff;border-radius:25px;box-shadow:0 18px 55px #59416a1c}
+.reveal{min-height:285px;border-radius:17px;background:linear-gradient(145deg,#fff0f7,#eee8ff);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px}
+.reveal .plane{font-size:42px}.reveal h2{font-size:clamp(26px,7vw,35px);color:#7544a0;line-height:1.16;margin:12px 0}.reveal p{line-height:1.6;color:#695675;margin:0}
+#cover{position:absolute;inset:16px;border-radius:17px;overflow:hidden;touch-action:none}canvas{width:100%;height:100%;display:block;touch-action:none}
+.hint{color:#9365a0;font-size:14px;font-weight:700;margin:18px 0}.after{display:none;margin-top:20px;line-height:1.6;color:#756781}.after strong{display:block;font-size:21px;color:#55406b;margin-bottom:5px}
+button{margin-top:12px;border:0;border-radius:30px;background:#8055b6;color:white;padding:12px 20px;font-weight:bold}
+footer{font-size:12px;color:#b09ab7;margin-top:18px}
+</style></head>
+<body><main>
+<div class="tag">A little note for you</div><h1>Guess what?</h1>
+<p class="intro">I have something to share with you.<br>Scratch the card to reveal it.</p>
+<section class="card"><div class="reveal"><div class="plane">✈️</div><h2>I'm coming<br>to Kolkata!</h2><p><strong>On Monday ✨</strong><br>Looking forward to seeing you.</p></div><div id="cover"><canvas id="c"></canvas></div></section>
+<div class="hint" id="hint">Scratch here to reveal the message</div>
+<div class="after" id="after"><strong>See you on Monday!</strong>Looking forward to catching up.<br><button id="reset">Scratch again</button></div>
+<footer>Made just for this moment</footer>
+</main>
+<script>
+const c=document.getElementById('c'),ctx=c.getContext('2d',{willReadFrequently:true}),cover=document.getElementById('cover');let down=false,done=false,last=0;
+function draw(){let r=cover.getBoundingClientRect(),d=devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);let g=ctx.createLinearGradient(0,0,r.width,r.height);g.addColorStop(0,'#c9c2d2');g.addColorStop(.5,'#f6f3f8');g.addColorStop(1,'#b9afc6');ctx.globalCompositeOperation='source-over';ctx.fillStyle=g;ctx.fillRect(0,0,r.width,r.height);ctx.fillStyle='#fff9';for(let i=0;i<70;i++){ctx.beginPath();ctx.arc((i*43)%r.width,(i*29)%r.height,1.2,0,7);ctx.fill()}ctx.fillStyle='#71647e';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 18px Arial';ctx.fillText('SCRATCH TO REVEAL',r.width/2,r.height/2-12);ctx.font='25px Arial';ctx.fillText('✦  ✉  ✦',r.width/2,r.height/2+24);ctx.globalCompositeOperation='destination-out'}
+function scratch(e){if(!down||done)return;let r=c.getBoundingClientRect();ctx.beginPath();ctx.arc(e.clientX-r.left,e.clientY-r.top,25,0,Math.PI*2);ctx.fill();if(Date.now()-last>300){last=Date.now();check()}}
+function check(){let a=ctx.getImageData(0,0,c.width,c.height).data,n=0,z=0;for(let i=3;i<a.length;i+=32){n++;if(a[i]===0)z++}if(z/n>.38){done=true;cover.style.transition='opacity .4s';cover.style.opacity=0;setTimeout(()=>cover.style.display='none',420);document.getElementById('hint').style.display='none';document.getElementById('after').style.display='block'}}
+c.addEventListener('pointerdown',e=>{down=true;c.setPointerCapture(e.pointerId);scratch(e)});c.addEventListener('pointermove',scratch);['pointerup','pointercancel','lostpointercapture'].forEach(x=>c.addEventListener(x,()=>down=false));
+document.getElementById('reset').onclick=()=>{done=false;cover.style.display='block';cover.style.opacity=1;document.getElementById('hint').style.display='block';document.getElementById('after').style.display='none';draw()};draw();addEventListener('resize',()=>{if(!done)draw()});
+</script></body></html>
